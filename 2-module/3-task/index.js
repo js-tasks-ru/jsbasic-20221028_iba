@@ -2,10 +2,10 @@ let calculator = {
   read(a, b) {
     return this['a'] = a, this['b'] = b
   },
-  sum(a, b) {
+  sum() {
     return this.a + this.b;
   },
-  mul(a, b) {
+  mul() {
     return this.a * this.b;
    },
 };
