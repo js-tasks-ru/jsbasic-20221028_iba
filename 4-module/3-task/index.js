@@ -20,7 +20,7 @@ function highlight(table) {
       // Проставить класс available/unavailable в зависимости от значения атрибута data-available у ячейки Status. Если её значение true – класс available, если её значение false – класс unavailable.
     } else if (availability.dataset.available === 'true') {
       line.classList.add('available');
-    } else if (availability.dataset.available == 'false') {
+    } else if (availability.dataset.available === 'false') {
       line.classList.add('unavailable');
     }
   });
