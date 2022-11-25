@@ -67,5 +67,6 @@ export default class UserTable {
 
     this.createRow(tbody);
     this.remove(tbody);
+    return tableLayout
   }
 }
