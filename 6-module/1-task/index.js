@@ -48,7 +48,7 @@ export default class UserTable {
     })
   }
 
-  elem() {
+  get elem() {
     const tableLayout = document.createElement('table');
     const tableHead = `
     <thead>
