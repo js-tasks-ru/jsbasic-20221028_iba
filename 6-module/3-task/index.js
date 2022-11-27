@@ -18,7 +18,7 @@ export default class Carousel {
         let slide = `<div class="carousel__slide" data-id="${id}">
         <img src="/assets/images/carousel/${image}" class="carousel__img" alt="slide ${name}">
         <div class="carousel__caption">
-          <span class="carousel__price">${price.toFixed(2)}</span>
+          <span class="carousel__price">€${price.toFixed(2)}</span>
           <div class="carousel__title">${name}</div>
           <button type="button" class="carousel__button">
             <img src="/assets/images/icons/plus-icon.svg" alt="icon">
