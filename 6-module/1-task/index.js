@@ -15,58 +15,44 @@
 export default class UserTable {
   constructor(rows) {
     this.rows = rows;
+    this.elem = this.render;
   }
 
-  createRow(tbody) {
-    this.rows.forEach(row => {
-      // линия tr
-      const tableLine = document.createElement('tr');
-      const removeButton = `<button type="button">X</button>`;
-      tbody.append(tableLine);
-      row.button = removeButton;
+  get render() {
+    this.elem = document.createElement('table');
+    this.elem.innerHTML = `<thead>
+                              <tr>
+                                  <th>Имя</th>
+                                  <th>Возраст</th>
+                                  <th>Зарплата</th>
+                                  <th>Город</th>
+                                  <th></th>
+                              </tr>
+                              <tbody>
+                              </tbody>
+                          </thead>`;
+    const tableBody = this.elem.querySelector('tbody');
+    tableBody.innerHTML = this.rows
+      .map(({name, age, salary, city}) => {
+        let tableRow = `<tr>
+                          <td>${name}</td>
+                          <td>${age}</td>
+                          <td>${salary}</td>
+                          <td>${city}</td>
+                          <td><button>X</button></td>
+                      </tr>`
+        return tableRow
+      }) 
+      .join('');
 
-      // ячейки td
-      this.createCell(row, tableLine);
-    });
+      this.elem.addEventListener('click', this.onClick);
+
+    return this.elem;
   }
 
-  createCell(row, tableLine) {
-    // ячейки td
-    Object.values(row).forEach(cell => {
-      const tableCell = document.createElement('td');
-      tableLine.append(tableCell);
-      tableCell.innerHTML = cell;
-    });
-  }
-
-  remove(tbody) {
-    tbody.addEventListener('click', function(event) {
-      event.preventDefault();
-      if (event.target.tagName === 'BUTTON') {
-        event.target.parentNode.parentNode.remove();
-      }
-    })
-  }
-
-  get elem() {
-    const tableLayout = document.createElement('table');
-    const tableHead = `
-    <thead>
-        <tr>
-            <th>Имя</th>
-            <th>Возраст</th>
-            <th>Зарплата</th>
-            <th>Город</th>
-            <th></th>
-        </tr>
-    </thead>`;
-    tableLayout.innerHTML = tableHead;
-    const tbody = document.createElement('tbody');
-    document.body.append(tableLayout);
-    tableLayout.append(tbody);
-
-    this.createRow(tbody);
-    this.remove(tbody);
-    return tableLayout
+  onClick(event) {
+    if (event.target.tagName === 'BUTTON') {
+      event.target.closest('TR').remove();
+    }
   }
 }
