@@ -2,17 +2,16 @@ import createElement from '../../assets/lib/create-element.js';
 
 export default class Modal {
   constructor() {
+    this.popup = this.popup;
     this.title = this.title;
     this.body = this.body;
-    this.close = this.close;
-    this.page = document.body;
   }
 
   _createPopup() {
-    let popup = document.createElement('div');
-    popup.classList.add('modal');
+    this.popup = document.createElement('div');
+    this.popup.classList.add('modal');
 
-    popup.innerHTML = `<div class="modal">
+    this.popup.innerHTML = `<div class="modal">
     <!--Прозрачная подложка перекрывающая интерфейс-->
     <div class="modal__overlay"></div>
 
@@ -27,7 +26,7 @@ export default class Modal {
 
   </div>`;
    
-    return popup
+    return this.popup
   }
 
   setTitle(text) {
@@ -47,23 +46,37 @@ export default class Modal {
   }
 
   open() {
-    this.page.append(this._createPopup());
-    const modalHeader = document.querySelector('.modal__header');
-    const modalInner = document.querySelector('.modal__inner');
+    const page = document.body;
+    page.append(this._createPopup());
+    const modalHeader = this.popup.querySelector('.modal__header');
+    const modalInner = this.popup.querySelector('.modal__inner');
     modalHeader.append(this.title);
     modalInner.append(this.body);
-    this.page.classList.add('is-modal-open');
-    document.addEventListener('keydown', this._closeByEsk)
+    page.classList.add('is-modal-open');
+    
+    document.addEventListener('keydown', event => {
+      if(event.code === 'Escape') {
+        page.classList.remove('is-modal-open');
+        this.popup.remove();
+      }
+    });
+    modalInner.addEventListener('click', this.close);
+    return this.popup
   }
 
-  close() {
-    console.log('234');
-  }
-
-  _closeByEsk(event) {
-    if(event.code === 'Escape') {
-      console.log(this.page)
-      this.page.classList.remove('is-modal-open')
+  close(event) {
+    if (event.target.closest('.modal__close') || event.target.offsetParent.closest('.modal__close')) {
+      const page = document.body;
+      const popup = event.target.closest('div.modal'); // при `.remove()` удаляет содержимое внутри, но не сам элемент
+   
+      page.classList.remove('is-modal-open');
+      popup.remove();
+      document.removeEventListener('keydown',  event => {
+        if(event.code === 'Escape') {
+          page.classList.remove('is-modal-open');
+          this.popup.remove();
+        }
+      });
     }
   }
 }
