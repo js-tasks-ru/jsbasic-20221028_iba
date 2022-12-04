@@ -39,60 +39,36 @@ export default class StepSlider {
     let active = slider.querySelector('.slider__step-active');
     const sliderValue = slider.querySelector('.slider__value');
     const sliderSteps = slider.querySelector('.slider__steps');
-    const slidesLength = sliderSteps.children.length - 1;
-    let stepWidth = sliderSteps.offsetWidth / slidesLength;
-    let pointCoordinate = 0;
-    let activeStepNumber = 0;
-    let left = 0;
-    const stepPointsPesrents = [0];
+    //процент каждой точки от слайдера
+    let dotsPercent = [];
+    //процент от слайдера, куда нажимает пользватель
+    let leftPercent = (((event.clientX - event.target.closest('.slider').getBoundingClientRect().left) / sliderSteps.offsetWidth) * 100).toFixed(0);
     active.classList.remove('slider__step-active');
 
-    for (let i = 0; i < slidesLength; i++) {
-      pointCoordinate += stepWidth;
-      stepPointsPesrents.push(pointCoordinate);
+
+    for(let i = 0; i < sliderSteps.children.length; i++) {
+      let x = 0;
+      x += ((100 / (sliderSteps.children.length - 1)) * i);
+      dotsPercent.push(x);
     }
+  
+    dotsPercent.forEach((dot, index) => {
+      if ((Number(leftPercent) -  dot) > 0 && (Number(leftPercent) - dot) < (dotsPercent[1] / 2) ||
+          (Number(leftPercent) -  dot) <= 0 && (Number(leftPercent) - dot) >= ((dotsPercent[1] / 2) * -1)
+      ) {
+        thumb.style.left = `${dotsPercent[index]}%`;
+        progress.style.width = `${dotsPercent[index]}%`;
+        sliderValue.textContent = index;
+        sliderSteps.children[index].classList.add('slider__step-active');
 
-    // если нажание на спан
-    if (event.target.closest('.slider__steps span')) {
-      event.target.classList.add('slider__step-active');
 
-      Array.from(event.target.parentElement.closest('.slider__steps').children).forEach((span, index) => {
-        if (span.classList.contains('slider__step-active')) {
-          activeStepNumber = index;
-          left = index * stepWidth + 'px';
-          thumb.style.left = stepWidth * index + 'px';
-          progress.style.width = stepWidth * index + 'px';
-          sliderValue.textContent = index;
-        }
-      });
-    } else {
-      // если нажание не на спан
-      stepPointsPesrents.forEach((dot, index) => {
-        if (
-          dot - (event.clientX - event.target.getBoundingClientRect().left) <=  stepWidth / 2 &&
-          dot - (event.clientX - event.target.getBoundingClientRect().left) > 0
-        ) {
-          thumb.style.left = stepWidth * index + 'px';
-          progress.style.width = stepWidth * index + 'px';
-          sliderValue.textContent = index;
-          sliderSteps.children[index].classList.add('slider__step-active');
-        } else if (
-          dot - (event.clientX - event.target.getBoundingClientRect().left) >= -(stepWidth / 2) &&
-          dot - (event.clientX - event.target.getBoundingClientRect().left) < 0
-        ) {
-          thumb.style.left = stepWidth * index + 'px';
-          progress.style.width = stepWidth * index + 'px';
-          sliderValue.textContent = index;
-          sliderSteps.children[index].classList.add('slider__step-active');
-        }
-      });
-    }
-
-    // Создание нового события
-    let newEvent = new CustomEvent('slider-change', { // имя события должно быть именно 'slider-change'
-      detail: this.value, // значение 0, 1, 2, 3, 4
-      bubbles: true // событие всплывает - это понадобится в дальнейшем
+        // Создание нового события
+      let newEvent = new CustomEvent('slider-change', { // имя события должно быть именно 'slider-change'
+        detail: index, // значение 0, 1, 2, 3, 4
+        bubbles: true // событие всплывает - это понадобится в дальнейшем
+        })
+        event.target.dispatchEvent(newEvent);
+      }
     })
-    event.target.dispatchEvent(newEvent);
   }
 }
