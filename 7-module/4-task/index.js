@@ -10,7 +10,7 @@ export default class StepSlider {
   get render() {
     this.elem = createElement(`
     <div class="slider">
-      <div class="slider__thumb"">
+      <div class="slider__thumb">
         <span class="slider__value">${this.value}</span>
       </div>
       <div class="slider__progress" style="width: 0"></div>
@@ -28,7 +28,7 @@ export default class StepSlider {
       }
     }
 
-    document.addEventListener('pointerdown', this.dragAndDropUp);
+    document.addEventListener('pointerdown', this.onMouseDown);
     this.elem.addEventListener('click', this.onClick);
     return this.elem;
   }
@@ -73,53 +73,74 @@ export default class StepSlider {
     });
   }
 
-  dragAndDropUp(event) {
+  onMouseDown(event) {
     if (event.target.closest('.slider__thumb')) {
-      event.target.closest('.slider').classList.add('slider_dragging');
-      document.removeEventListener('pointerdown', this.dragAndDropUp);
-      document.addEventListener('pointerup', dragAndDropDown);
+      const slider = event.target.closest('.slider');
+      const thumb = slider.querySelector('.slider__thumb');
+      const progress = slider.querySelector('.slider__progress');
+      let active = slider.querySelector('.slider__step-active');
+      const sliderValue = slider.querySelector('.slider__value');
+      const sliderSteps = slider.querySelector('.slider__steps');
+       //процент каждой точки от слайдера
+       let dotsPercent = [];
+       //процент от слайдера, куда нажимает пользватель
+       let rect = thumb.getBoundingClientRect();
+       let shiftX = event.clientX - rect.left;
+       
+       function onMouseMove(moveEvent) {
+        slider.classList.add('slider_dragging');
+          let x = moveEvent.clientX - slider.getBoundingClientRect().left;
+  
+  
+          let leftPercent = (((moveEvent.clientX - slider.getBoundingClientRect().left) / sliderSteps.offsetWidth) * 100).toFixed(0);
+         
+  
+         if (leftPercent <= 100 && leftPercent >= 0) {
+            thumb.style.left =  leftPercent + '%'; 
+            progress.style.width = leftPercent + '%'; 
+         }
+  
+       }
+  
+       document.addEventListener('pointermove', onMouseMove);
+  
+       document.onpointerup = function(event) {
+        document.removeEventListener('pointermove', onMouseMove);
+        slider.classList.remove('slider_dragging');
 
-      function dragAndDropDown(event)  {
-          const slider = event.target.closest('.slider');
-          const thumb = slider.querySelector('.slider__thumb');
-          const progress = slider.querySelector('.slider__progress');
-          let active = slider.querySelector('.slider__step-active');
-          const sliderValue = slider.querySelector('.slider__value');
-          const sliderSteps = slider.querySelector('.slider__steps');
-          //процент каждой точки от слайдера
-          let dotsPercent = [];
-          //процент от слайдера, куда нажимает пользватель
-          let leftPercent = (((event.clientX - event.target.closest('.slider').getBoundingClientRect().left) / sliderSteps.offsetWidth) * 100).toFixed(0);
-          active.classList.remove('slider__step-active');
-      
-      
-          for(let i = 0; i < sliderSteps.children.length; i++) {
-            let x = 0;
-            x += ((100 / (sliderSteps.children.length - 1)) * i);
-            dotsPercent.push(x);
-          }
-        
-          dotsPercent.forEach((dot, index) => {
-            if ((Number(leftPercent) -  dot) > 0 && (Number(leftPercent) - dot) < (dotsPercent[1] / 2) ||
-                (Number(leftPercent) -  dot) <= 0 && (Number(leftPercent) - dot) >= ((dotsPercent[1] / 2) * -1)
-            ) {
-              thumb.style.left = `${dotsPercent[index]}%`;
-              progress.style.width = `${dotsPercent[index]}%`;
-              sliderValue.textContent = index;
-              sliderSteps.children[index].classList.add('slider__step-active');
-      
-      
-              // Создание нового события
-            let newEvent = new CustomEvent('slider-change', { // имя события должно быть именно 'slider-change'
-              detail: index, // значение 0, 1, 2, 3, 4
-              bubbles: true // событие всплывает - это понадобится в дальнейшем
-              })
-              event.target.dispatchEvent(newEvent);
-            }
-          });
-          console.log(event.target)
-          document.removeEventListener('pointerup', dragAndDropDown);
+        let leftPercent = (((event.clientX - slider.getBoundingClientRect().left) / sliderSteps.offsetWidth) * 100).toFixed(0);
+         
+        let dotsPercent = [];   
+        for(let i = 0; i < sliderSteps.children.length; i++) {
+          let x = 0;
+          x += ((100 / (sliderSteps.children.length - 1)) * i);
+          dotsPercent.push(x);
         }
-     }
+        
+        dotsPercent.forEach((dot, index) => {
+          if ((Number(leftPercent) -  dot) > 0 && (Number(leftPercent) - dot) < (dotsPercent[1] / 2) ||
+              (Number(leftPercent) -  dot) <= 0 && (Number(leftPercent) - dot) >= ((dotsPercent[1] / 2) * -1)
+          ) {
+            thumb.style.left = `${dotsPercent[index]}%`;
+            progress.style.width = `${dotsPercent[index]}%`;
+            sliderValue.textContent = index;
+            sliderSteps.children[index].classList.add('slider__step-active');
+    
+    
+            // Создание нового события
+          let newEvent = new CustomEvent('slider-change', { // имя события должно быть именно 'slider-change'
+            detail: index, // значение 0, 1, 2, 3, 4
+            bubbles: true // событие всплывает - это понадобится в дальнейшем
+            })
+            event.target.dispatchEvent(newEvent);
+          }
+        });
+
+        thumb.onpointerup = null;
+       };
+  
+       thumb.ondrugstart = () => false;
+       
+    }
   }
 }
