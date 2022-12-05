@@ -46,7 +46,6 @@ export default class StepSlider {
     let leftPercent = (((event.clientX - event.target.closest('.slider').getBoundingClientRect().left) / sliderSteps.offsetWidth) * 100).toFixed(0);
     active.classList.remove('slider__step-active');
 
-
     for(let i = 0; i < sliderSteps.children.length; i++) {
       let x = 0;
       x += ((100 / (sliderSteps.children.length - 1)) * i);
@@ -78,48 +77,42 @@ export default class StepSlider {
       const slider = event.target.closest('.slider');
       const thumb = slider.querySelector('.slider__thumb');
       const progress = slider.querySelector('.slider__progress');
-      let active = slider.querySelector('.slider__step-active');
       const sliderValue = slider.querySelector('.slider__value');
       const sliderSteps = slider.querySelector('.slider__steps');
-       //процент каждой точки от слайдера
-       let dotsPercent = [];
-       //процент от слайдера, куда нажимает пользватель
-       let rect = thumb.getBoundingClientRect();
-       let shiftX = event.clientX - rect.left;
        
-       function onMouseMove(moveEvent) {
-        slider.classList.add('slider_dragging');
-          let x = moveEvent.clientX - slider.getBoundingClientRect().left;
+      function onMouseMove(moveEvent) {
+      slider.classList.add('slider_dragging');
   
-  
-          let leftPercent = (((moveEvent.clientX - slider.getBoundingClientRect().left) / sliderSteps.offsetWidth) * 100).toFixed(0);
+      let leftPercent = (((moveEvent.clientX - slider.getBoundingClientRect().left) / sliderSteps.offsetWidth) * 100).toFixed(0);
          
   
-         if (leftPercent <= 100 && leftPercent >= 0) {
-            thumb.style.left =  leftPercent + '%'; 
-            progress.style.width = leftPercent + '%'; 
-         }
+      if (leftPercent <= 100 && leftPercent >= 0) {
+        thumb.style.left =  leftPercent + '%'; 
+        progress.style.width = leftPercent + '%'; 
+      }
   
        }
   
-       document.addEventListener('pointermove', onMouseMove);
+      document.addEventListener('pointermove', onMouseMove);
   
-       document.onpointerup = function(event) {
-        document.removeEventListener('pointermove', onMouseMove);
-        slider.classList.remove('slider_dragging');
+      document.onpointerup = function(event) {
+      document.removeEventListener('pointermove', onMouseMove);
+      slider.classList.remove('slider_dragging');
 
-        let leftPercent = (((event.clientX - slider.getBoundingClientRect().left) / sliderSteps.offsetWidth) * 100).toFixed(0);
+      let active = slider.querySelector('.slider__step-active');
+      active.classList.remove('slider__step-active');
+      let leftPercent = (((event.clientX - slider.getBoundingClientRect().left) / sliderSteps.offsetWidth) * 100).toFixed(0);
          
-        let dotsPercent = [];   
-        for(let i = 0; i < sliderSteps.children.length; i++) {
-          let x = 0;
-          x += ((100 / (sliderSteps.children.length - 1)) * i);
-          dotsPercent.push(x);
-        }
+      let dotsPercent = [];   
+      for(let i = 0; i < sliderSteps.children.length; i++) {
+        let x = 0;
+        x += ((100 / (sliderSteps.children.length - 1)) * i);
+        dotsPercent.push(x);
+      }
         
-        dotsPercent.forEach((dot, index) => {
-          if ((Number(leftPercent) -  dot) > 0 && (Number(leftPercent) - dot) < (dotsPercent[1] / 2) ||
-              (Number(leftPercent) -  dot) <= 0 && (Number(leftPercent) - dot) >= ((dotsPercent[1] / 2) * -1)
+      dotsPercent.forEach((dot, index) => {
+        if ((Number(leftPercent) -  dot) > 0 && (Number(leftPercent) - dot) < (dotsPercent[1] / 2) ||
+          (Number(leftPercent) -  dot) <= 0 && (Number(leftPercent) - dot) >= ((dotsPercent[1] / 2) * -1)
           ) {
             thumb.style.left = `${dotsPercent[index]}%`;
             progress.style.width = `${dotsPercent[index]}%`;
@@ -135,11 +128,10 @@ export default class StepSlider {
             event.target.dispatchEvent(newEvent);
           }
         });
-
         thumb.onpointerup = null;
        };
   
-       thumb.ondrugstart = () => false;
+      thumb.ondrugstart = () => false;
        
     }
   }
