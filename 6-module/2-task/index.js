@@ -7,7 +7,7 @@ export default class ProductCard {
   }
 
   get render() {
-    this.elem = createElement(`<div class="card" data-id="${this.product.id}">
+    this.elem = createElement(`<div class="card" data-spiciness="${this.spiciness}" data-id="${this.product.id}"  data-category="${this.product.category}">
                                 <div class="card__top">
                                     <img src="/assets/images/products/${this.product.image}" class="card__image" alt="product ${this.product.name}">
                                     <span class="card__price">€${this.product.price.toFixed(2)}</span>
