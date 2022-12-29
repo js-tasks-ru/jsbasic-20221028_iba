@@ -18,7 +18,7 @@ export default class CartIcon {
       this.elem.innerHTML = `
         <div class="cart-icon__inner">
           <span class="cart-icon__count">${cart.getTotalCount()}</span>
-          <span class="cart-icon__price">€${cart.getTotalPrice().toFixed(2)}</span>
+          <span class="cart-icon__price">€${Number(cart.getTotalPrice()).toFixed(2)}</span>
         </div>`;
 
       this.updatePosition();
