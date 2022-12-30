@@ -13,25 +13,82 @@ export default class Cart {
   }
 
   addProduct(product) {
-    // СКОПИРУЙТЕ СЮДЯ СВОЙ КОД
+    if (product === null || product === undefined) {
+      return
+    } else {
+      // если корзина не пуста
+    if (this.cartItems.length > 0) {
+      let ifIncludes = this.cartItems.filter(item => item.product.id === product.id);
+      if (ifIncludes.length > 0) {
+        // если такой продукт уже есть, увеличиваем количество
+        this.cartItems.forEach((item) => {
+          if (item.product.id === product.id) {
+            this.cartItem = {
+              product,
+              count: item.count += 1,
+            };
+          }
+        });
+      } else {
+        // если такого продукта нет, добавляем
+        this.cartItem = {
+          product,
+          count: 1,
+        };
+        this.cartItems.push(this.cartItem);
+      }
+    
+    } else {
+      // если корзина пустая, то просто добавляем товар
+      this.cartItem = {
+        product,
+        count: 1,
+      };
+      this.cartItems.push(this.cartItem);
+    }
+    this.onProductUpdate(this.cartItem);
+    }
   }
 
   updateProductCount(productId, amount) {
-    // СКОПИРУЙТЕ СЮДЯ СВОЙ КОД
+    this.cartItems.forEach((item, i) => {
+        if (item.product.id === productId) {
+          item.count = Number(item.count) + Number(amount);
+          this.cartItem.count = item.count;
+
+          if(this.cartItem.count <= 0) {
+           if (this.cartItems[i].product.id === this.cartItem.product.id) {
+            this.cartItems.splice(i, 1); 
+            this.cartItem = null;
+           }
+          }
+        }
+    });
+    this.onProductUpdate(this.cartItem);
   }
 
   isEmpty() {
-    // СКОПИРУЙТЕ СЮДЯ СВОЙ КОД
+    // Возвращает true если корзина пустая и false если в корзине есть хотя бы один товар.
+    if (this.cartItems.length > 0) {
+      return false
+    } else {
+      return true
+    }
   }
 
   getTotalCount() {
-    // СКОПИРУЙТЕ СЮДЯ СВОЙ КОД
+    let count = this.cartItems.reduce((item, elem) => {
+      return item + elem.count
+    }, 0);
+    return count
   }
 
   getTotalPrice() {
-    // СКОПИРУЙТЕ СЮДЯ СВОЙ КОД
+    let fullPrice = this.cartItems.reduce((item, elem) => {
+      return item + (elem.count * elem.product.price)
+    }, 0);
+    return fullPrice
   }
-
   renderProduct(product, count) {
     return createElement(`
     <div class="cart-product" data-product-id="${
@@ -83,13 +140,74 @@ export default class Cart {
     </form>`);
   }
 
+
   renderModal() {
-    // ...ваш код
+    let items = createElement('<div></div>');
+    this.cartItems.forEach(item => {
+      items.append(this.renderProduct(item.product, item.count));
+    });
+    items.append(this.renderOrderForm());
+
+    let popup = new Modal();
+    popup.setTitle('Your order');
+    popup.setBody(items);
+    popup.open();
+    const modalBody = document.querySelector('.modal__body');
+
+    modalBody.addEventListener('click', this.updateCart);
+    this.onSubmit(event);
+  }
+
+  _getParents = (elem) => {
+    let parents = [];
+    for ( ; elem && elem !== document; elem = elem.parentNode ) {
+      parents.push(elem);
+    }
+    return parents;
+  }
+
+  updateCart = (event) => {
+    let parents = this._getParents(event.target);
+    if(event.target.closest('.cart-counter__button_minus') && event.target.parentElement.closest('.cart-counter__button_minus')) {
+      parents.forEach(elem => {
+        if (elem.classList.contains('cart-product')) {
+          this.updateProductCount(elem.dataset.productId, -1);
+        }
+      });
+    }
+
+    if(event.target.closest('.cart-counter__button_plus') && event.target.parentElement.closest('.cart-counter__button_plus')) {
+      parents.forEach(elem => {
+        if (elem.classList.contains('cart-product')) {
+          this.updateProductCount(elem.dataset.productId, 1);
+        }
+      });
+    }
   }
 
   onProductUpdate(cartItem) {
-    // ...ваш код
+    let productCount;
+    let productPrice;
+    let infoPrice;
+    if (document.body.classList.contains('is-modal-open')) {
+      let parents = this._getParents(event.target);
+      parents.forEach(elem => {
+        if (elem.classList.contains('cart-product')) {
+          productCount = elem.querySelector('.cart-counter__count');
+          productPrice = elem.querySelector('.cart-product__price')
+          infoPrice = elem.querySelector('.cart-buttons__info-price');
+        }
+      });
+  
+      console.log(cartItem.count)
 
+      productCount.innerHTML = cartItem.count;
+
+      // productPrice.innerHTML = '1';
+
+      // infoPrice.innerHTML = '1';
+
+    }
     this.cartIcon.update(this);
   }
 
