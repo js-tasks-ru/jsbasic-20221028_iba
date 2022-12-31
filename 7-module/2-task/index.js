@@ -64,7 +64,7 @@ export default class Modal {
   }
 
   closeModal = (event) => {
-    if (event.target.closest('.modal__close') || event.target.offsetParent.closest('.modal__close')) {
+    if (event.target.closest('.modal__close')) {
       this.close();
     }
   }

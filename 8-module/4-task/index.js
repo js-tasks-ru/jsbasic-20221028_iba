@@ -185,35 +185,27 @@ export default class Cart {
   }
 
   onProductUpdate(cartItem) {
-    let productCount;
-    let productPrice;
-    let infoPrice;
     if (document.body.classList.contains('is-modal-open')) {
-      let parents = this._getParents(event.target);
-      parents.forEach(elem => {
-        if (elem.classList.contains('cart-product')) {
-          productCount = elem.querySelector('.cart-counter__count');
-          productPrice = elem.querySelector('.cart-product__price')
-          infoPrice = document.querySelector('.cart-buttons__info-price');
-          
-          if (this.cartItem === null || this.cartItem.count == 0) {
-            elem.remove();
-          } else {
-            let productPriceSum = Number(this.cartItem.product.price) * Number(this.cartItem.count)
-            productCount.innerHTML = this.cartItem.count;
-            productPrice.innerHTML = `€${productPriceSum.toFixed(2)}`;
-            infoPrice.innerHTML = `€${Number(this.getTotalPrice()).toFixed(2)}`;
-          }
+      let modalBody = this.popup.popup.querySelector('.modal__body');
+      
+      if (this.cartItem === null || this.cartItem.count == 0) {
+        event.target.closest('.cart-product').remove();
+      } else {
+        let elementInCart = modalBody.querySelector(`[data-product-id="${cartItem.product.id}"]`);
+        // Элемент, который хранит количество товаров с таким productId в корзине
+        let productCount = elementInCart.querySelector('.cart-counter__count');
+        // Элемент с общей стоимостью всех единиц этого товара
+        let productPrice = elementInCart.querySelector('.cart-product__price');
+        let infoPrice = this.popup.popup.querySelector('.cart-buttons__info-price');
+        let productPriceSum = Number(this.cartItem.product.price) * Number(this.cartItem.count)
+        productCount.innerHTML = this.cartItem.count;
+        productPrice.innerHTML = `€${productPriceSum.toFixed(2)}`;
+        infoPrice.innerHTML = `€${Number(this.getTotalPrice()).toFixed(2)}`;
+      }
 
-          if (this.getTotalCount() <= 0) {
-            this.popup.close();
-          }
-        }
-      });
-  
-
- 
-
+      if (this.getTotalCount() <= 0) {
+        this.popup.close();
+      }
     }
     this.cartIcon.update(this);
   }
