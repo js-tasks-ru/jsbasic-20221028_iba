@@ -8,7 +8,6 @@ export default class Cart {
 
   constructor(cartIcon) {
     this.cartIcon = cartIcon;
-    this.popup = new Modal();
     this.addEventListeners();
   }
 
@@ -116,7 +115,7 @@ export default class Cart {
   }
 
   renderOrderForm() {
-    return createElement(`<form class="cart-form">
+    return createElement(`<form class="cart-form" method="POST" action="https://httpbin.org/post">
       <h5 class="cart-form__title">Delivery</h5>
       <div class="cart-form__group cart-form__group_row">
         <input name="name" type="text" class="cart-form__input" placeholder="Name" required value="Santa Claus">
@@ -142,6 +141,7 @@ export default class Cart {
 
 
   renderModal() {
+    this.popup = new Modal();
     let items = createElement('<div></div>');
     this.cartItems.forEach(item => {
       items.append(this.renderProduct(item.product, item.count));
@@ -151,10 +151,10 @@ export default class Cart {
     this.popup.setTitle('Your order');
     this.popup.setBody(items);
     this.popup.open();
-    const modalBody = document.querySelector('.modal__body');
-
+    const modalBody = this.popup.popup.querySelector('.modal__body');
+    const form = this.popup.popup.querySelector(".cart-form");
     modalBody.addEventListener('click', this.updateCart);
-    this.onSubmit(event);
+    form.addEventListener('submit', this.onSubmit);
   }
 
   _getParents = (elem) => {
@@ -211,7 +211,30 @@ export default class Cart {
   }
 
   onSubmit(event) {
-    // ...ваш код
+    event.preventDefault();
+    console.log(this.cartIcon)
+    const form = this;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.classList.add('is-loading');
+
+    let formData = new FormData(form);
+    fetch('https://httpbin.org/post', { method: "POST", body: formData })
+    .then((response) => {
+      return response.json;
+    })
+    .then(() => {
+      this.cartItems = [];
+      this.cartIcon.update(this);
+      document.querySelector('.modal__title').innerHTML = 'Success!';
+      document.querySelector('.modal__body').innerHTML = `<div class="modal__body-inner">
+          <p>
+            Order successful! Your order is being cooked :) <br>
+            We’ll notify you about delivery time shortly.<br>
+            <img src="/assets/images/delivery.gif">
+          </p>
+        </div>
+        `;
+    });
   };
 
   addEventListeners() {
