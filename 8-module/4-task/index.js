@@ -88,6 +88,7 @@ export default class Cart {
     }, 0);
     return fullPrice
   }
+
   renderProduct(product, count) {
     return createElement(`
     <div class="cart-product" data-product-id="${
@@ -141,7 +142,8 @@ export default class Cart {
 
 
   renderModal() {
-    this.popup = new Modal();
+    let popup = new Modal();
+    this.popup = popup;
     let items = createElement('<div></div>');
     this.cartItems.forEach(item => {
       items.append(this.renderProduct(item.product, item.count));
@@ -154,7 +156,9 @@ export default class Cart {
     const modalBody = this.popup.popup.querySelector('.modal__body');
     const form = this.popup.popup.querySelector(".cart-form");
     modalBody.addEventListener('click', this.updateCart);
-    form.addEventListener('submit', this.onSubmit);
+    form.addEventListener('submit', (evt) => {
+      this.onSubmit(evt);
+    });
   }
 
   _getParents = (elem) => {
@@ -212,8 +216,7 @@ export default class Cart {
 
   onSubmit(event) {
     event.preventDefault();
-    console.log(this.cartIcon)
-    const form = this;
+    const form = this.popup.popup.querySelector('.cart-form');
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.classList.add('is-loading');
 
@@ -223,19 +226,20 @@ export default class Cart {
       return response.json;
     })
     .then(() => {
-      this.cartItems = [];
-      this.cartIcon.update(this);
-      document.querySelector('.modal__title').innerHTML = 'Success!';
-      document.querySelector('.modal__body').innerHTML = `<div class="modal__body-inner">
-          <p>
-            Order successful! Your order is being cooked :) <br>
-            We’ll notify you about delivery time shortly.<br>
-            <img src="/assets/images/delivery.gif">
-          </p>
-        </div>
-        `;
+        this.cartItems = [];
+        this.cartIcon.update(this);
+        this.popup.setTitle('Success!');
+        this.popup.setBody(createElement(`
+            <div class="modal__body-inner">
+              <p>
+                Order successful! Your order is being cooked :) <br>
+                We’ll notify you about delivery time shortly.<br>
+                <img src="/assets/images/delivery.gif">
+              </p>
+            </div>
+          `));
     });
-  };
+  }
 
   addEventListeners() {
     this.cartIcon.elem.onclick = () => this.renderModal();
