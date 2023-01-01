@@ -50,20 +50,29 @@ export default class Cart {
   }
 
   updateProductCount(productId, amount) {
-    this.cartItems.forEach((item, i) => {
-        if (item.product.id === productId) {
-          item.count = Number(item.count) + Number(amount);
-          this.cartItem.count = item.count;
-
-          if(this.cartItem.count <= 0) {
-           if (this.cartItems[i].product.id === this.cartItem.product.id) {
-            this.cartItems.splice(i, 1); 
-            this.cartItem = null;
-           }
-          }
-        }
+    let cartItem = this.cartItems.find(item => {
+      return item.product.id === productId;
     });
-    this.onProductUpdate(this.cartItem);
+
+    if (!cartItem) {
+      return;
+    }
+
+    if (amount === 1) {
+      cartItem.count++;
+    } else {
+      cartItem.count--;
+    }
+
+    if (cartItem.count === 0) {
+      this.cartItems.forEach((item, index) => {
+        if (item.product.id === cartItem.product.id) {
+          this.cartItems.splice(index, 1);
+        }
+      });
+    }
+
+    this.onProductUpdate(cartItem);
   }
 
   isEmpty() {
@@ -161,48 +170,30 @@ export default class Cart {
     });
   }
 
-  _getParents = (elem) => {
-    let parents = [];
-    for ( ; elem && elem !== document; elem = elem.parentNode ) {
-      parents.push(elem);
-    }
-    return parents;
-  }
-
   updateCart = (event) => {
-    let parents = this._getParents(event.target);
-    if(event.target.closest('.cart-counter__button_minus') && event.target.parentElement.closest('.cart-counter__button_minus')) {
-      parents.forEach(elem => {
-        if (elem.classList.contains('cart-product')) {
-          this.updateProductCount(elem.dataset.productId, -1);
-        }
-      });
+    if(event.target.closest('.cart-counter__button_minus')) {
+      this.updateProductCount(event.target.closest('.cart-product').dataset.productId, -1);
     }
 
-    if(event.target.closest('.cart-counter__button_plus') && event.target.parentElement.closest('.cart-counter__button_plus')) {
-      parents.forEach(elem => {
-        if (elem.classList.contains('cart-product')) {
-          this.updateProductCount(elem.dataset.productId, 1);
-        }
-      });
+    if(event.target.closest('.cart-counter__button_plus')) {
+      this.updateProductCount(event.target.closest('.cart-product').dataset.productId, 1);
     }
   }
 
   onProductUpdate(cartItem) {
     if (document.body.classList.contains('is-modal-open')) {
-      let modalBody = this.popup.popup.querySelector('.modal__body');
       
       if (this.cartItem === null || this.cartItem.count == 0) {
         event.target.closest('.cart-product').remove();
       } else {
-        let elementInCart = modalBody.querySelector(`[data-product-id="${cartItem.product.id}"]`);
+        let elementInCart = event.target.closest('.cart-product');
         // Элемент, который хранит количество товаров с таким productId в корзине
         let productCount = elementInCart.querySelector('.cart-counter__count');
         // Элемент с общей стоимостью всех единиц этого товара
         let productPrice = elementInCart.querySelector('.cart-product__price');
         let infoPrice = this.popup.popup.querySelector('.cart-buttons__info-price');
-        let productPriceSum = Number(this.cartItem.product.price) * Number(this.cartItem.count)
-        productCount.innerHTML = this.cartItem.count;
+        let productPriceSum = Number(cartItem.product.price) * Number(cartItem.count)
+        productCount.innerHTML = cartItem.count;
         productPrice.innerHTML = `€${productPriceSum.toFixed(2)}`;
         infoPrice.innerHTML = `€${Number(this.getTotalPrice()).toFixed(2)}`;
       }
