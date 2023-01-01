@@ -40,13 +40,11 @@ export default class Main {
 
     let products = await serverResponse.json();
 
-    const productsGridContainer = document.querySelector('[data-products-grid-holder]');
-
-    productsGridContainer.innerHTML = '';
+    dataProductsGridHolder.innerHTML = '';
 
     const productsGrid = await new ProductsGrid(products);
 
-    productsGridContainer.append(productsGrid.elem);
+    dataProductsGridHolder.append(productsGrid.elem);
 
     const nutsCheckbox = document.getElementById('nuts-checkbox');
     const vegeterianCheckbox = document.getElementById('vegeterian-checkbox');
@@ -58,7 +56,6 @@ export default class Main {
       category: ribbonMenu.value
     });
 
-
     document.body.addEventListener('product-add', (evt) => {
       let productId = evt.detail;
 
@@ -69,7 +66,7 @@ export default class Main {
       cart.addProduct(currentProduct);
     });
 
-    sliderContainer.addEventListener('slider-change', (evt) => {
+    dataSliderHolder.addEventListener('slider-change', (evt) => {
       let value = evt.detail;
 
       productsGrid.updateFilter({
@@ -77,7 +74,7 @@ export default class Main {
       });
     });
 
-    ribbonContainer.addEventListener('ribbon-select', (evt) => {
+    dataRibbonHolder.addEventListener('ribbon-select', (evt) => {
       let categoryId = evt.detail;
 
       productsGrid.updateFilter({
