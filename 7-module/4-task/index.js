@@ -10,10 +10,10 @@ export default class StepSlider {
   get render() {
     this.elem = createElement(`
     <div class="slider">
-      <div class="slider__thumb">
+      <div class="slider__thumb" style="left: calc(${100 / this.steps * (this.value + 1)}% - 17px)">
         <span class="slider__value">${this.value}</span>
       </div>
-      <div class="slider__progress" style="width: 0"></div>
+      <div class="slider__progress" style="width: calc(${100 / this.steps * (this.value + 1)}% - 17px)"></div>
       <div class="slider__steps">
       </div>
     </div>`);
@@ -23,7 +23,7 @@ export default class StepSlider {
       let step = document.createElement('span');
       sliderSteps.append(step);
 
-      if (i === 0) {
+      if (i === this.value) {
         step.classList.add('slider__step-active');
       }
     }
