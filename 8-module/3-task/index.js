@@ -6,7 +6,7 @@ export default class Cart {
   }
 
   addProduct(product) {
-    if (product === null || product === undefined) {
+    if (!product) {
       return
     } else {
       // если корзина не пуста
