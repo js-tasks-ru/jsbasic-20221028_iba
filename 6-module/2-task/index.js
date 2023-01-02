@@ -25,7 +25,7 @@ export default class ProductCard {
   }
 
   onClick(event) {
-    if (event.target.classList.contains('card__button') || event.target.parentElement.classList.contains('card__button')) {
+    if (event.target.closest('.card__button')) {
       let newEvent = new CustomEvent('product-add', { // имя события должно быть именно "product-add"
         detail: event.target.closest('.card').dataset.id, // Уникальный идентификатора товара из объекта товара
         bubbles: true // это событие всплывает - это понадобится в дальнейшем
