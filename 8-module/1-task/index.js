@@ -15,9 +15,10 @@ export default class CartIcon {
     if (!cart.isEmpty()) {
       this.elem.classList.add('cart-icon_visible');
 
-      this.elem.innerHTML = `<div class="cart-icon__inner">
+      this.elem.innerHTML = `
+        <div class="cart-icon__inner">
           <span class="cart-icon__count">${cart.getTotalCount()}</span>
-          <span class="cart-icon__price">€${Number(cart.getTotalPrice()).toFixed(2)}</span>
+          <span class="cart-icon__price">€${cart.getTotalPrice().toFixed(2)}</span>
         </div>`;
 
       this.updatePosition();
@@ -38,31 +39,36 @@ export default class CartIcon {
   }
 
   updatePosition() {
-    // текущая Y-координата относительно окна + текущая прокрутка
-    let initialTopCoord = this.elem.getBoundingClientRect().top + window.pageYOffset;
-    const icon = document.querySelector('.cart-icon');
+    const desktopView = window.matchMedia('(min-width: 768px)');
 
-    if (icon.classList.contains('cart-icon_visible')) {
-      if (window.pageYOffset > initialTopCoord) {
-        let leftIndent = Math.min(
-          document.querySelector('.container').getBoundingClientRect().right + 20,
-          document.documentElement.clientWidth - this.elem.offsetWidth - 10
-        ) + 'px';
+    const windowWidth = document.documentElement.clientWidth;
+    const containerElem = document.querySelector('.container');
+    const cartWidth = this.elem.getBoundingClientRect().width;
+    const CART_SHIFT_RIGHT = 20;
+    const MIN_RIGHT_CART_POSITION = 10;
 
-        Object.assign(icon.style, {
-          position: 'fixed',
-          top: '50px',
-          zIndex: 1e3,
-          right: '10px',
-          left: leftIndent
-        });
+    if (this.elem.offsetWidth && this.elem.getBoundingClientRect().top <= 0 && desktopView.matches) {
 
-        if (document.documentElement.clientWidth <= 767) {
-          icon.style = '';
-        }
+      let leftPosition;
+
+      if (containerElem.getBoundingClientRect().right + CART_SHIFT_RIGHT + MIN_RIGHT_CART_POSITION + cartWidth <= windowWidth) {
+        leftPosition = containerElem.getBoundingClientRect().right + CART_SHIFT_RIGHT;
       } else {
-        icon.style = '';
+        leftPosition = windowWidth - cartWidth - MIN_RIGHT_CART_POSITION;
       }
+
+      this.elem.style.position = 'fixed';
+      this.elem.style.zIndex = '100';
+      this.elem.style.top = '50px';
+      this.elem.style.left = `${leftPosition}px`;
     }
+
+    if (window.pageYOffset === 0) {
+      this.elem.style.position = null;
+      this.elem.style.zIndex = null;
+      this.elem.style.top = null;
+      this.elem.style.left = null;
+    }
+
   }
 }
